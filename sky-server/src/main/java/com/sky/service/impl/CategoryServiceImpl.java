@@ -40,7 +40,11 @@ public class CategoryServiceImpl implements CategoryService {
     public void addCategory(CategoryDTO categoryDTO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO,category);
+<<<<<<< HEAD
         category.setStatus(StatusConstant.DISABLE);
+=======
+        category.setStatus(StatusConstant.ENABLE);
+>>>>>>> origin/main
         category.setCreateTime(LocalDateTime.now());
         category.setCreateUser(BaseContext.getCurrentId());
         category.setUpdateTime(LocalDateTime.now());
@@ -109,6 +113,7 @@ public class CategoryServiceImpl implements CategoryService {
         // 没有关联分类删除
         categoryMapper.deleteById(id);
     }
+<<<<<<< HEAD
 
     /**
      * 根据类型查询分类
@@ -120,4 +125,6 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> list = categoryMapper.list(type);
         return list;
     }
+=======
+>>>>>>> origin/main
 }

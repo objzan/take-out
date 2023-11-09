@@ -6,9 +6,12 @@ import com.sky.entity.Category;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+<<<<<<< HEAD
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+=======
+>>>>>>> origin/main
 
 @Mapper
 public interface CategoryMapper {
@@ -42,6 +45,7 @@ public interface CategoryMapper {
      */
     @Delete("delete from category where id = #{CategoryId}")
     void deleteById(Long id);
+<<<<<<< HEAD
 
 
     /**
@@ -52,4 +56,6 @@ public interface CategoryMapper {
 
     @Select("select * from category where type=#{type}")
     List<Category> list(Integer type);
+=======
+>>>>>>> origin/main
 }
