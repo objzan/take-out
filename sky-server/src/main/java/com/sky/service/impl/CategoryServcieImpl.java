@@ -37,6 +37,7 @@ public class CategoryServcieImpl implements CategoryService {
 
     /**
      * 新增分类
+     *
      * @param categoryDTO
      */
     @Override
@@ -45,22 +46,23 @@ public class CategoryServcieImpl implements CategoryService {
         BeanUtils.copyProperties(categoryDTO, category);
         log.info("Save category: {}", category);
         category.setStatus(StatusConstant.ENABLE);
-        category.setCreateUser(BaseContext.getCurrentId());
-        category.setUpdateUser(BaseContext.getCurrentId());
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
+//        category.setCreateUser(BaseContext.getCurrentId());
+//        category.setUpdateUser(BaseContext.getCurrentId());
+//        category.setCreateTime(LocalDateTime.now());
+//        category.setUpdateTime(LocalDateTime.now());
         categoryMapper.insert(category);
     }
 
 
     /**
      * 分类分页查询
+     *
      * @param categoryPageQueryDTO
      * @return
      */
     @Override
     public PageResult page(CategoryPageQueryDTO categoryPageQueryDTO) {
-        PageHelper.startPage(categoryPageQueryDTO.getPage(),categoryPageQueryDTO.getPageSize());
+        PageHelper.startPage(categoryPageQueryDTO.getPage(), categoryPageQueryDTO.getPageSize());
         Page<Category> page = categoryMapper.page(categoryPageQueryDTO);
         long total = page.getTotal();
         List pageResult = page.getResult();
@@ -70,6 +72,7 @@ public class CategoryServcieImpl implements CategoryService {
 
     /**
      * 启用、禁用分类
+     *
      * @param status
      * @param id
      */
@@ -84,20 +87,22 @@ public class CategoryServcieImpl implements CategoryService {
 
     /**
      * 修改分类
+     *
      * @param categoryDTO
      */
     @Override
     public void updateCategory(CategoryDTO categoryDTO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO, category);
-        category.setUpdateUser(BaseContext.getCurrentId());
-        category.setUpdateTime(LocalDateTime.now());
+//        category.setUpdateUser(BaseContext.getCurrentId());
+//        category.setUpdateTime(LocalDateTime.now());
         categoryMapper.update(category);
     }
 
 
     /**
      * 根据id删除分类
+     *
      * @param id
      */
     @Override
@@ -123,6 +128,7 @@ public class CategoryServcieImpl implements CategoryService {
 
     /**
      * 根据类型查询分类
+     *
      * @param type
      * @return
      */

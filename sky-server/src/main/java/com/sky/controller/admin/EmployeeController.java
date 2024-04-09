@@ -78,8 +78,12 @@ public class EmployeeController {
     }
 
 
-
-    @PostMapping("employee")
+    /**
+     * 新增员工
+     * @param employeeDTO
+     * @return
+     */
+    @PostMapping
     @ApiOperation("新增员工")
     public Result<String> save(@RequestBody EmployeeDTO employeeDTO) {
         employeeService.save(employeeDTO);
