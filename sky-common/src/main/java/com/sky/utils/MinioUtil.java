@@ -10,6 +10,9 @@ import io.minio.errors.MinioException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 @Data
 @AllArgsConstructor
 @Slf4j
-public class AliOssUtil {
+public class MinIOUtil {
 
     private String endpoint;
     private String accessKey;
@@ -50,7 +53,7 @@ public class AliOssUtil {
             minioClient.putObject(args);
 
             // 文件访问路径规则
-            String fileUrl = "https://" + bucketName + "." + endpoint + "/" + URLEncoder.encode(objectName, StandardCharsets.UTF_8.toString());
+            String fileUrl = endpoint +"/"+ bucketName + "/" +  URLEncoder.encode(objectName, StandardCharsets.UTF_8.toString());
 
             // 打印或记录日志
             System.out.println("文件上传到: " + fileUrl);
