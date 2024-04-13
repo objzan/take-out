@@ -1,7 +1,17 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
+import com.sky.annotation.AutoFill;
+import com.sky.dto.DishPageQueryDTO;
+import com.sky.entity.Dish;
+import com.sky.enumeration.OperationType;
+import com.sky.vo.DishVO;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 @Mapper
 public interface DishMapper {
@@ -13,5 +23,39 @@ public interface DishMapper {
     Integer countByCategoryId(Long CategoryId);
 
 
+    /**
+     * 新增菜品
+     * @param dish
+     */
+    @AutoFill(OperationType.INSERT)
+    void insert(Dish dish);
 
+
+    /**
+     * 菜品分页查询
+     * @param dishPageQueryDTO
+     * @return
+     */
+    Page<DishVO> page(DishPageQueryDTO dishPageQueryDTO);
+
+    /**
+     * 根据dishId查询dish
+     * @param dishId
+     * @return
+     */
+    @Select("select * from dish where id = #{dishId}")
+    Dish getById(Long dishId);
+
+    /**
+     * 根据菜品id删除菜品
+     * @param dishIds
+     */
+    void deleteBatch(List<Long> dishIds);
+
+    /**
+     * 更新菜品
+     * @param dish
+     */
+    @AutoFill(OperationType.UPDATE)
+    void update(Dish dish);
 }
