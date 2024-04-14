@@ -14,3 +14,10 @@ sky:
     access-key: admin
     secret-key: password
     bucket-name: img
+
+
+  redis:
+    host: localhost
+    port: 6379
+    password: 123456
+    database: 10
