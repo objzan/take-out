@@ -98,4 +98,10 @@ public interface OrderService {
      * @param ordersCancelDTO
      */
     void cancelOrder(OrdersCancelDTO ordersCancelDTO);
+
+    /**
+     * 催单
+     * @param id
+     */
+    void reminder(Long id);
 }
