@@ -1,11 +1,9 @@
 package com.sky.service;
 
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.SalesTop10ReportVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.vo.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public interface ReportService {
     /**
@@ -39,4 +37,30 @@ public interface ReportService {
      * @return
      */
     SalesTop10ReportVO SalesTop10Report(LocalDate begin, LocalDate end);
+
+
+    /**
+     * 查询今日运营数据
+     * @param begin
+     * @param end
+     */
+    BusinessDataVO businessData(LocalDateTime begin, LocalDateTime end);
+
+    /**
+     * 查询套餐总览
+     * @return
+     */
+    SetmealOverViewVO overviewSetmeals();
+
+    /**
+     * 查询菜品总览
+     * @return
+     */
+    DishOverViewVO overviewDishes();
+
+    /**
+     * 查询订单管理数据
+     * @return
+     */
+    OrderOverViewVO overviewOrders();
 }

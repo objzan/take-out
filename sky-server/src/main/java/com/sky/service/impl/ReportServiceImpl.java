@@ -2,16 +2,16 @@ package com.sky.service.impl;
 
 import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ReportMapper;
+import com.sky.mapper.SetmealMapper;
 import com.sky.service.ReportService;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.SalesTop10ReportVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.vo.*;
 import kotlin.reflect.KVariance;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +30,12 @@ import java.util.stream.Collectors;
 public class ReportServiceImpl implements ReportService {
     @Autowired
     private ReportMapper reportMapper;
+
+    @Autowired
+    private SetmealMapper setmealMapper;
+
+    @Autowired
+    private DishMapper dishMapper;
 
     /**
      * 营业额统计接口
@@ -199,5 +205,123 @@ public class ReportServiceImpl implements ReportService {
                 .numberList(StringUtils.join(numberList, ","))
                 .build();
         return salesTop10ReportVO;
+    }
+
+    /**
+     * 查询今日运营数据
+     * @param begin
+     * @param end
+     */
+    @Override
+    public BusinessDataVO businessData(LocalDateTime begin, LocalDateTime end) {
+        Map map = new HashMap();
+        map.put("begin",begin);
+        map.put("end",end);
+        // 新增用户数
+        Integer newUsers = reportMapper.countUserByMap(map);
+
+
+
+        // 总订单数
+        Integer orderCount = reportMapper.countOrderByMap(map);
+
+        map.put("status",Orders.COMPLETED);
+        // 有效订单数
+        Integer validOrderCount = reportMapper.countOrderByMap(map);
+
+        // 订单完成率
+        Double orderCompletionRate=0.00;
+        if (orderCount!=0){
+            orderCompletionRate = validOrderCount.doubleValue()/orderCount;
+        }
+
+
+        // 营业额
+        Double turnover = reportMapper.sumByMap(map);
+
+        // 平均客单价
+        Double unitPrice=0.00;
+        if (validOrderCount!=0){
+            unitPrice = turnover.doubleValue()/validOrderCount;
+        }
+
+
+        BusinessDataVO businessDataVO = BusinessDataVO
+                .builder()
+                .newUsers(newUsers)
+                .orderCompletionRate(orderCompletionRate)
+                .turnover(turnover)
+                .unitPrice(unitPrice)
+                .validOrderCount(validOrderCount)
+                .build();
+
+        return businessDataVO;
+
+    }
+
+    /**
+     * 查询套餐总览
+     * @return
+     */
+    @Override
+    public SetmealOverViewVO overviewSetmeals() {
+        Integer discontinued = setmealMapper.discontinued();
+        Integer sold = setmealMapper.sold();
+        SetmealOverViewVO setmealOverViewVO = SetmealOverViewVO
+                .builder()
+                .discontinued(discontinued)
+                .sold(sold)
+                .build();
+        return setmealOverViewVO;
+    }
+
+
+    /**
+     * 查询菜品总览
+     * @return
+     */
+    @Override
+    public DishOverViewVO overviewDishes() {
+        Integer discontinued = dishMapper.discontinued();
+        Integer sold = dishMapper.sold();
+
+        DishOverViewVO dishOverViewVO = DishOverViewVO
+                .builder()
+                .discontinued(discontinued)
+                .sold(sold)
+                .build();
+        return dishOverViewVO;
+    }
+
+
+    /**
+     * 查询订单管理数据
+     * @return
+     */
+    @Override
+    public OrderOverViewVO overviewOrders() {
+        LocalDateTime begin = LocalDateTime.now().with(LocalTime.MIN);
+        LocalDateTime end = LocalDateTime.now().with(LocalTime.MAX);
+        Map map = new HashMap();
+        map.put("begin",begin);
+        map.put("end",end);
+        Integer allOrders = reportMapper.countOrderByMap(map);
+        map.put("status",Orders.CANCELLED);
+        Integer cancelledOrders = reportMapper.countOrderByMap(map);
+        map.put("status",Orders.COMPLETED);
+        Integer completedOrders = reportMapper.countOrderByMap(map);
+        map.put("status",Orders.DELIVERY_IN_PROGRESS);
+        Integer deliveredOrders = reportMapper.countOrderByMap(map);
+        map.put("status",Orders.TO_BE_CONFIRMED);
+        Integer waitingOrders = reportMapper.countOrderByMap(map);
+        OrderOverViewVO orderOverViewVO = OrderOverViewVO
+                .builder()
+                .allOrders(allOrders)
+                .cancelledOrders(cancelledOrders)
+                .completedOrders(completedOrders)
+                .deliveredOrders(deliveredOrders)
+                .waitingOrders(waitingOrders)
+                .build();
+        return orderOverViewVO;
     }
 }

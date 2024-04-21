@@ -83,4 +83,18 @@ public interface DishMapper {
      */
     @Select("select * from dish where category_id=#{categoryId} and status= #{status} ")
     List<Dish> list(Dish dish);
+
+    /**
+     * 查询已停售的菜品数量
+     * @return
+     */
+    @Select("select count(id) from dish where status = 0")
+    Integer discontinued();
+
+    /**
+     * 查询起售菜品数量
+     * @return
+     */
+    @Select("select count(id) from dish where status = 1")
+    Integer sold();
 }
