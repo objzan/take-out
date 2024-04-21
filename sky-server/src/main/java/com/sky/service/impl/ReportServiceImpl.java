@@ -11,10 +11,17 @@ import com.sky.vo.*;
 import kotlin.reflect.KVariance;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,6 +43,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Autowired
     private DishMapper dishMapper;
+
+    @Autowired
+    private ReportService reportService;
 
     /**
      * 营业额统计接口
@@ -238,6 +248,7 @@ public class ReportServiceImpl implements ReportService {
 
         // 营业额
         Double turnover = reportMapper.sumByMap(map);
+        turnover = turnover==null?0.00:turnover;
 
         // 平均客单价
         Double unitPrice=0.00;
@@ -323,5 +334,54 @@ public class ReportServiceImpl implements ReportService {
                 .waitingOrders(waitingOrders)
                 .build();
         return orderOverViewVO;
+    }
+
+
+    /**
+     * 导出Excel报表接口
+     * @return
+     */
+    @Override
+    public void export(HttpServletResponse response) {
+        // 查询数据
+        LocalDate beginDate = LocalDate.now().minusDays(30);
+        LocalDate endDate = LocalDate.now().minusDays(1);
+        BusinessDataVO businessDataVO = reportService.businessData(LocalDateTime.of(beginDate, LocalTime.MIN), LocalDateTime.of(endDate, LocalTime.MAX));
+
+        // 读取Excel模版
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("template/运营数据报表模板.xlsx");
+        // 写入数据
+        try {
+            // 时间
+            XSSFWorkbook excel = new XSSFWorkbook(inputStream);
+            XSSFSheet sheet = excel.getSheet("Sheet1");
+            sheet.getRow(1).getCell(1).setCellValue("时间："+beginDate+"至"+endDate);
+
+            // 设置概览数据
+            sheet.getRow(3).getCell(2).setCellValue(businessDataVO.getTurnover());
+            sheet.getRow(3).getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());
+            sheet.getRow(3).getCell(6).setCellValue(businessDataVO.getNewUsers());
+
+            sheet.getRow(4).getCell(2).setCellValue(businessDataVO.getValidOrderCount());
+            sheet.getRow(4).getCell(4).setCellValue(businessDataVO.getUnitPrice());
+
+            // 设置明细数据
+            for (int i = 0; i < 30; i++) {
+                LocalDate date = beginDate.plusDays(i);
+                BusinessDataVO businessData = reportService.businessData(LocalDateTime.of(date, LocalTime.MIN), LocalDateTime.of(date, LocalTime.MAX));
+                sheet.getRow(7+i).getCell(1).setCellValue(date.toString());
+                sheet.getRow(7+i).getCell(2).setCellValue(businessData.getTurnover());
+                sheet.getRow(7+i).getCell(3).setCellValue(businessData.getValidOrderCount());
+                sheet.getRow(7+i).getCell(4).setCellValue(businessData.getOrderCompletionRate());
+                sheet.getRow(7+i).getCell(5).setCellValue(businessData.getUnitPrice());
+                sheet.getRow(7+i).getCell(6).setCellValue(businessData.getNewUsers());
+            }
+            // 输出
+            ServletOutputStream outputStream = response.getOutputStream();
+            excel.write(outputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
